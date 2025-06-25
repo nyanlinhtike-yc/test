@@ -716,7 +716,10 @@
       currentWord = shuffled[index++];
       document.getElementById('jp-word').style.visibility = 'hidden';
       document.getElementById('en-meaning').style.visibility = 'hidden';
+
+      playAudio(); // Automatically play audio when a new word is displayed
     }
+
 
     function playAudio() {
       const audio = document.getElementById('audio-player');
