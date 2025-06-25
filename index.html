@@ -1,28 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Japanese Trainer</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Do or Drink</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 100px;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
     }
     h1 {
-      font-size: 36px;
-      margin-bottom: 50px;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: #f8f8f8;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     }
-    button {
-      font-size: 20px;
-      padding: 15px 40px;
-      margin: 20px;
+    .group-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 14px 30px;
+      margin: 12px;
+      font-size: 1.2em;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(6px);
+    }
+    .group-btn:hover {
+      background: #fff;
+      color: #1f1c2c;
+    }
+    .question-box {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 25px 20px;
+      font-size: 1.4em;
+      margin: 30px 0 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      min-height: 100px;
+      max-width: 600px;
+      backdrop-filter: blur(5px);
+    }
+    #back-btn {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      background: #f06292;
+      border-radius: 14px;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+    #back-btn:hover {
+      background: #ec407a;
+    }
+    @media (max-width: 500px) {
+      .group-btn {
+        font-size: 1em;
+        padding: 12px 20px;
+      }
+      .question-box {
+        font-size: 1.2em;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Japanese Word Practice</h1>
-  <button onclick="location.href='listening.html'">🎧 Listening Mode</button>
-  <button onclick="location.href='reading.html'">📖 Reading Mode</button>
+  <h1>🍷 Do or Drink</h1>
+
+  <div id="home">
+    <button class="group-btn" onclick="startGame('basic')">🟢 Basic</button>
+    <button class="group-btn" onclick="startGame('intermediate')">🟡 Intermediate</button>
+    <button class="group-btn" onclick="startGame('spicy')">🔴 Spicy</button>
+  </div>
+
+  <div id="game" style="display:none;">
+    <h2 id="group-title"></h2>
+    <div class="question-box" id="question-box">Click below to get a question!</div>
+    <button class="group-btn" onclick="showRandomQuestion()">🎲 Next Question</button><br><br>
+    <button id="back-btn" onclick="goHome()">⬅ Back to Home</button>
+  </div>
+
+  <script>
+    const questions = {
+      basic: [
+        "Do your best animal impression.",
+        "Try to lick your elbow.",
+        "Speak in a baby voice for the next 2 minutes.",
+        "Sing your favorite childhood song.",
+        "Say the alphabet backward.",
+        "Spin in a circle for 10 seconds.",
+        "Let the other person write something on your arm.",
+        "Try to balance a spoon on your nose.",
+        "Wear your shirt backward.",
+        "Show the last photo you took.",
+        "Text your mom something silly.",
+        "Say one thing you love about yourself.",
+        "Pretend to be a waiter taking an order.",
+        "Eat something with your eyes closed.",
+        "Take a funny selfie and show it.",
+        "Let her give you a nickname.",
+        "Say a fun fact about yourself.",
+        "Try to beatbox for 5 seconds.",
+        "Wear socks on your hands.",
+        "Call a contact and say 'I miss my cat.'",
+        "Make a silly face for 10 seconds.",
+        "Use only emojis to answer for 1 round.",
+        "Speak like a robot until your next turn.",
+        "Say 'banana' in the sexiest voice possible.",
+        "Try to do a handstand or wall lean.",
+        "Do 5 pushups or fake them with drama.",
+        "Try to wink with both eyes.",
+        "Tell a lame joke.",
+        "Let the other person scroll your IG for 5 sec.",
+        "Wear your shoes on your hands for a minute."
+      ],
+      intermediate: [
+        "Reveal your last 3 emojis.",
+        "Name your biggest teenage crush.",
+        "Read your last 3 messages aloud.",
+        "Let her check your search history.",
+        "Say your celebrity crush.",
+        "Show your most-used app.",
+        "Say something you've never told anyone.",
+        "Let her guess your secret.",
+        "Tell what made you blush recently.",
+        "Give her a compliment.",
+        "Say your first kiss name.",
+        "Imitate someone flirting with you.",
+        "Say where you'd take her on a romantic date.",
+        "Describe your 'type.'",
+        "Say your favorite romantic movie.",
+        "Give her a shoulder massage (10 sec).",
+        "Say how good of a kisser you are (1–10).",
+        "Let her pick your lock screen image.",
+        "Act like you're shy for 30 seconds.",
+        "Say your secret talent.",
+        "Say something sexy without using dirty words.",
+        "Confess your most used pickup line.",
+        "Let her ask any question and answer honestly.",
+        "Say whether you've ever lied on a date.",
+        "Describe a dream you wish came true.",
+        "Name someone you’ve secretly stalked online.",
+        "Say how many people you've kissed.",
+        "Share your guilty pleasure.",
+        "Say whether you like being teased.",
+        "Tell your favorite flirting memory."
+      ],
+      spicy: [
+        "Describe your favorite way to be kissed.",
+        "Where do you like to be touched the most?",
+        "Moan like you're in a movie (3 seconds).",
+        "Whisper something dirty in her ear.",
+        "Bite your lip and hold eye contact.",
+        "Name someone you've fantasized about.",
+        "Describe your dream sexy moment.",
+        "Take off one clothing item (safe).",
+        "Let her choose where to touch you (non-private).",
+        "Stare at her lips for 5 seconds.",
+        "Say what you'd do on a sexy date.",
+        "Tell the dirtiest thought today.",
+        "Act like you're seducing someone slowly.",
+        "Let her draw on your lower back.",
+        "Say where you’d kiss her first.",
+        "Let her give you a naughty nickname.",
+        "Touch your lips slowly and stare at her.",
+        "Say whether you'd kiss her right now.",
+        "Truth: Are you horny right now?",
+        "Say 'I want you' and mean it.",
+        "Show your last saved sexy meme or pic.",
+        "Act like you're giving a massage (air only).",
+        "Let her sit close — knees touching.",
+        "Say how you want to be touched.",
+        "Tell her a fantasy about you two.",
+        "Truth: Ever dreamed of her?",
+        "Say how long your last kiss lasted.",
+        "Give her a flirty compliment.",
+        "Describe your favorite make-out session.",
+        "Let her kiss your hand or neck (or pretend).",
+        "Unbutton one button (yours).",
+        "Say your favorite position — sleep or not.",
+        "Lick your lips for 5 seconds.",
+        "Describe your favorite body part — hers or yours.",
+        "Say if you're a tease or the teased.",
+        "Let her ask you a naughty question — no skips.",
+        "Act like you're turned on (for fun).",
+        "Try to say a sexy line in a calm voice.",
+        "Say what you’d do in a dark room with her."
+      ]
+    };
+
+    let currentGroup = '';
+
+    function startGame(group) {
+      currentGroup = group;
+      document.getElementById('home').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+      document.getElementById('group-title').innerText =
+        group === 'basic' ? '🟢 Basic Level' :
+        group === 'intermediate' ? '🟡 Intermediate Level' :
+        '🔴 Spicy Level';
+      showRandomQuestion();
+    }
+
+    function showRandomQuestion() {
+      const groupQuestions = questions[currentGroup];
+      const randomIndex = Math.floor(Math.random() * groupQuestions.length);
+      document.getElementById('question-box').innerText = groupQuestions[randomIndex];
+    }
+
+    function goHome() {
+      document.getElementById('game').style.display = 'none';
+      document.getElementById('home').style.display = 'block';
+    }
+  </script>
 </body>
 </html>

@@ -86,13 +86,6 @@
   <div id="jp-word">Word</div>
   <div id="en-meaning">Meaning</div>
   <div id="progress" style="margin-bottom: 10px; font-weight: bold; color: #555;">1/100</div>
-  <div class="card">
-  <div id="progress" style="margin-bottom: 10px; font-weight: bold; color: #555;">1/100</div>
-  <div id="jp-word" class="jp-word" style="visibility: hidden;">こんにちは</div>
-  <div id="en-meaning" class="en-meaning" style="visibility: hidden;">Hello</div>
-  <audio id="audio-player"></audio>
-</div>
-
 
   <button onclick="playAudio()">🔊 Play</button>
   <button onclick="showWord()">👁 Show Word</button>
@@ -756,85 +749,93 @@
     ];
 
     let shuffled = [];
-let index = 0;
-let currentWord = {};
+    let index = 0;
+    let currentWord = {};
 
-function shuffleVocab() {
-  shuffled = [...vocab].sort(() => Math.random() - 0.5);
-  index = 0;
-}
+    function shuffleVocab() {
+      shuffled = [...vocab].sort(() => Math.random() - 0.5);
+      index = 0;
+    }
 
-function displayNextWord() {
+    function nextWord() {
+      if (index >= shuffled.length) {
+        document.getElementById('jp-word').innerText = "おつかれさまでした！";
+        document.getElementById('en-meaning').innerText = "Thank you for your hard work!";
+        document.getElementById('jp-word').style.visibility = 'visible';
+        document.getElementById('en-meaning').style.visibility = 'visible';
+        setTimeout(() => {
+          shuffleVocab();
+          displayNextWord();
+        }, 2000);
+      } else {
+        displayNextWord();
+      }
+    }
+
+    function displayNextWord() {
   currentWord = shuffled[index++];
   document.getElementById('jp-word').style.visibility = 'hidden';
   document.getElementById('en-meaning').style.visibility = 'hidden';
 
-  // Update progress
+  // Update progress like "3/100"
   document.getElementById('progress').innerText = `${index}/${shuffled.length}`;
 
-  playAudio();
-
-  // After 3s, show meaning
-  setTimeout(() => {
-    showWord();
-    showMeaning();
-
-    // After another 3s, go to next word
-    setTimeout(() => {
-      nextWord();
-    }, 3000);
-
-  }, 3000);
+  playAudio(); // Ensure this is still here
 }
+x
 
-function nextWord() {
-  if (index >= shuffled.length) {
-    document.getElementById('jp-word').innerText = "おつかれさまでした！";
-    document.getElementById('en-meaning').innerText = "Thank you for your hard work!";
-    document.getElementById('jp-word').style.visibility = 'visible';
-    document.getElementById('en-meaning').style.visibility = 'visible';
+    function playAudio() {
+      const audio = document.getElementById('audio-player');
+      audio.src = `audio/${currentWord.jp}.mp3`;
 
-    setTimeout(() => {
+      audio.load(); // Explicitly load the new audio
+
+      audio.oncanplaythrough = () => {
+        audio.play().catch(err => {
+          alert("Audio not found or cannot play. Showing the word instead.");
+          showWord();
+        });
+      };
+
+      audio.onerror = () => {
+        alert("Audio file missing or invalid. Showing the word instead.");
+        showWord();
+      };
+    }
+
+
+    function showWord() {
+      document.getElementById('jp-word').innerText = currentWord.jp;
+      document.getElementById('jp-word').style.visibility = 'visible';
+      document.activeElement.blur(); // Remove focus from button
+
+    }
+
+    function showMeaning() {
+      document.getElementById('en-meaning').innerText = currentWord.mm;
+      document.getElementById('en-meaning').style.visibility = 'visible';
+      document.activeElement.blur(); // Remove focus from button
+    }
+
+    window.onload = () => {
       shuffleVocab();
-      displayNextWord();
-    }, 3000);
-  } else {
-    displayNextWord();
-  }
-}
+      nextWord();
 
-function playAudio() {
-  const audio = document.getElementById('audio-player');
-  audio.src = `audio/${currentWord.jp}.mp3`;
-  audio.load();
+      // Add keyboard shortcuts
+      document.addEventListener('keydown', (event) => {
+        // Alt + S to show meaning
+        if (event.altKey && event.key.toLowerCase() === 's') {
+          event.preventDefault(); // Prevent browser from doing anything weird
+          showMeaning();
+        }
 
-  audio.oncanplaythrough = () => {
-    audio.play().catch(err => {
-      console.warn("Audio play failed:", err);
-      showWord();
-    });
-  };
-
-  audio.onerror = () => {
-    console.warn("Audio not found.");
-    showWord();
-  };
-}
-
-function showWord() {
-  document.getElementById('jp-word').innerText = currentWord.jp;
-  document.getElementById('jp-word').style.visibility = 'visible';
-}
-
-function showMeaning() {
-  document.getElementById('en-meaning').innerText = currentWord.mm;
-  document.getElementById('en-meaning').style.visibility = 'visible';
-}
-
-window.onload = () => {
-  shuffleVocab();
-  nextWord(); // Start automatically
-};
+        // Enter to go to next word
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Prevent triggering the focused button again
+          nextWord();
+        }
+      });
+    };
 
   </script>
 </body>
